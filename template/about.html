@@ -42,7 +42,7 @@
 
 <!-- ================= JOUEURS ================= -->
 <section class="section">
-    <h2 class="section-title">👥 Effectifs par équipe</h2>
+    <h2 class="section-title">Effectifs par équipe</h2>
 
     <select id="teamSelect" class="select"></select>
 
@@ -74,7 +74,7 @@
 
 <!-- ================= STADES ================= -->
 <section class="section">
-    <h2 class="section-title">🏟️ Stades de la CAN 2025</h2>
+    <h2 class="section-title">Stades de la CAN 2025</h2>
 
     <div class="metrics-row">
         <div class="metric-card">
@@ -181,13 +181,13 @@ const small = stades.reduce((a, b) =>
 
 // Affichage
 document.getElementById("biggest").innerHTML = `
-    🏆 <strong>Plus grand stade</strong><br>
+    <strong>Plus grand stade</strong><br>
     ${big.stade} — ${big.ville}<br>
     Capacité : ${cleanNumber(big.capacite).toLocaleString("fr-FR")} places
 `;
 
 document.getElementById("smallest").innerHTML = `
-    📍 <strong>Plus petit stade</strong><br>
+    <strong>Plus petit stade</strong><br>
     ${small.stade} — ${small.ville}<br>
     Capacité : ${cleanNumber(small.capacite).toLocaleString("fr-FR")} places
 `;
