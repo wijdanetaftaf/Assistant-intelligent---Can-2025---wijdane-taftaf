@@ -1,0 +1,645 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root {
+    --green: #1a472a;
+    --green-light: #2d6a3e;
+    --red: #c1272d;
+    --white: #ffffff;
+    --gray: #f8f9fa;
+}
+
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    color: #222;
+    background: #ffffff;
+}
+
+/* ===== NAVBAR TRANSPARENT ===== */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 18px 70px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background: transparent;        /* 100% transparent */
+    backdrop-filter: blur(8px);     /* effet glass léger */
+    z-index: 1000;
+}
+
+
+.logo {
+    color: rgb(107, 106, 106); /* vert foncé */
+    font-weight: 700;
+    font-size: 20px;
+}
+
+/* liens */
+.navbar nav a {
+    color: rgb(107, 106, 106); 
+    text-decoration: none;
+    margin-left: 28px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+/* hover */
+.navbar nav a:hover {
+    color: #c1272d;
+}
+
+/* actif */
+.navbar nav a.active {
+    color: #1a472a;
+    font-weight: 700;
+    position: relative;
+}
+
+.navbar nav a.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 100%;
+    height: 2px;
+    background: #c1272d;
+}
+
+
+/* HERO */
+.hero {
+    height: 100vh;
+    background:
+        linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
+        url("images/rabat.jpg") center/cover no-repeat;
+    position: relative;
+}
+
+.hero-content {
+    position: absolute;
+    top: 50%;
+    left: 80px;
+    transform: translateY(-50%);
+    color: white;
+    max-width: 600px;
+}
+
+.can-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--red), var(--green));
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.hero-content h1 {
+    font-size: 44px;
+    line-height: 1.25;
+    margin-bottom: 20px;
+}
+
+.hero-content p {
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+
+.btn-primary {
+    background: var(--green);
+    padding: 14px 26px;
+    border-radius: 30px;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.btn-primary:hover {
+    background: var(--green-light);
+}
+
+/* MOROCCO SECTION */
+.morocco {
+    padding: 90px 120px;
+    text-align: center;
+    background: var(--gray);
+}
+
+.section-badge {
+    background: var(--green);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.morocco h2 {
+    margin-top: 18px;
+    color: var(--green);
+    font-size: 28px;
+}
+
+.underline {
+    width: 70px;
+    height: 3px;
+    background: var(--red);
+    margin: 18px auto 40px;
+}
+
+.morocco-description {
+    max-width: 900px;
+    margin: auto;
+    line-height: 1.9;
+    font-size: 16px;
+}
+
+/* MOROCCO STATS */
+.morocco-stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 50px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    background: white;
+    padding: 30px;
+    border-radius: 18px;
+    width: 260px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.stat-card.green {
+    border-top: 4px solid var(--green);
+}
+
+.stat-card.red {
+    border-top: 4px solid var(--red);
+}
+
+.stat-card h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.stat-card p {
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--green);
+}
+
+.stat-card span {
+    font-size: 14px;
+    color: #555;
+}
+
+/* CITIES */
+.cities {
+    padding: 90px 70px;
+    text-align: center;
+}
+
+.cities h2 {
+    font-size: 26px;
+    color: var(--green);
+}
+
+.city-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.city-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.city-card img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.city-card:hover img {
+    transform: scale(1.1);
+}
+
+.city-overlay {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(
+        rgba(0,0,0,0),
+        rgba(193,39,45,0.85)
+    );
+    color: white;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* FOOTER */
+footer {
+    background: var(--green);
+    color: white;
+    text-align: center;
+    padding: 18px;
+    font-size: 14px;
+}
+/*--------------------------------------------------------------------------------------*/
+/* CHATBOT FULL PAGE */
+/* NAVBAR SPECIFIQUE HOME / CHATBOT */
+#main-navbar {
+    background: rgba(26, 71, 42, 0.95);
+    backdrop-filter: blur(6px);
+}
+
+#main-navbar .logo {
+    color: white;
+}
+
+#main-navbar nav a {
+    color: white;
+}
+
+#main-navbar nav a:hover {
+    color: #c1272d;
+}
+
+.chatbot-full {
+    min-height: 100vh;
+    padding-top: 110px;
+    display: flex;
+    flex-direction: column;
+    background: #f8f7f7;
+}
+
+/* HEADER */
+.chatbot-top {
+    text-align: center;
+    padding: 40px 20px 20px;
+}
+
+.chatbot-top h1 {
+    color: var(--green);
+    margin-top: 10px;
+}
+
+.chatbot-top p {
+    color: #666;
+    font-size: 15px;
+}
+
+/* CHAT AREA */
+.chat-area {
+    flex: 1;
+    padding: 30px 15%;
+    overflow-y: auto;
+}
+
+/* MESSAGES */
+.bot-msg {
+    max-width: 65%;
+    background: linear-gradient(135deg, var(--green), var(--green-light));
+    color: white;
+    padding: 14px 18px;
+    border-radius: 18px;
+    margin-bottom: 16px;
+    line-height: 1.6;
+}
+
+.user-msg {
+    max-width: 65%;
+    background: white;
+    border: 1px solid #ddd;
+    padding: 14px 18px;
+    border-radius: 18px;
+    margin-left: auto;
+    margin-bottom: 16px;
+}
+
+/* INPUT FIXED */
+.chat-input-fixed {
+    display: flex;
+    gap: 12px;
+    padding: 20px 15%;
+    background: white;
+    border-top: 1px solid #eee;
+}
+
+.chat-input-fixed input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: #f1f3f5;
+    padding: 14px 18px;
+    border-radius: 20px;
+    font-size: 15px;
+}
+
+.chat-input-fixed button {
+    background: var(--green);
+    color: white;
+    border: none;
+    padding: 0 26px;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ACTIVE NAV */
+.navbar nav a.active {
+    color: var(--red);
+    font-weight: 700;
+}
+/*--------------------------------------------------------------------------------------*/
+/* ================= CONTACT PAGE (SIMPLE & CLEAN) ================= */
+
+.contact-simple {
+    min-height: 100vh;
+    padding-top: 160px;
+    padding-bottom: 80px;
+    background: white;
+    text-align: center;
+}
+
+/* TITRE */
+.contact-simple h1 {
+    font-size: 36px;
+    color: #1a472a;
+    margin-bottom: 10px;
+}
+
+/* SOUS-TITRE */
+.contact-subtitle {
+    max-width: 600px;
+    margin: 0 auto 50px;
+    font-size: 15px;
+    color: #666;
+    line-height: 1.6;
+}
+
+/* CONTENU */
+.contact-content {
+    max-width: 520px;
+    margin: auto;
+    padding: 0 20px;
+}
+
+/* FORMULAIRE */
+.contact-form-simple {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* INPUTS */
+.contact-form-simple input,
+.contact-form-simple textarea {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 15px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    background: #fafafa;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* FOCUS (accent rouge subtil) */
+.contact-form-simple input:focus,
+.contact-form-simple textarea:focus {
+    outline: none;
+    border-color: #c1272d;
+    box-shadow: 0 0 0 2px rgba(193, 39, 45, 0.12);
+    background: white;
+}
+
+/* BOUTON ENVOYER – CAN GRADIENT */
+.contact-form-simple button {
+    margin-top: 10px;
+    padding: 14px;
+    border-radius: 30px;
+    border: none;
+
+    /* Dégradé CAN */
+    background: linear-gradient(135deg, #1a472a, #c1272d);
+
+    color: white;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Hover */
+.contact-form-simple button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(26, 71, 42, 0.25);
+}
+
+
+.contact-form-simple button:hover {
+    background: #2d6a3e;
+    transform: translateY(-2px);
+}
+
+/* FOOTER (optionnel, plus léger ici) */
+footer {
+    background: #f8f9fa;
+    color: #666;
+    text-align: center;
+    padding: 18px;
+    font-size: 14px;
+    border-top: 1px solid #eee;
+}
+
+
+/*--------------------------------------------------------------------------------------*/
+/* ===== ABOUT PAGE ===== */
+/* ================= GLOBAL LUXE ================= */
+body {
+    background: #fafafa;
+}
+
+/* Page header */
+.page-header {
+    padding: 120px 80px 60px;
+    background: linear-gradient(
+        to right,
+        rgba(26,71,42,0.06),
+        rgba(193,39,45,0.04)
+    );
+}
+
+.page-header h1 {
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #1a472a, #c1272d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.page-header p {
+    font-size: 16px;
+    color: #555;
+}
+
+/* ================= SECTIONS ================= */
+.section {
+    padding: 60px 80px;
+}
+
+.section-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    position: relative;
+    padding-left: 14px;
+}
+
+.section-title::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    width: 4px;
+    height: 22px;
+    background: linear-gradient(#1a472a, #c1272d);
+    border-radius: 2px;
+}
+
+/* ================= METRICS ================= */
+.metrics-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 28px;
+    padding: 40px 80px;
+}
+
+.metric-card {
+    background: white;
+    border-radius: 18px;
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+    transition: transform .3s ease, box-shadow .3s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.12);
+}
+
+.metric-card span,
+.metric-card h3 {
+    font-size: 34px;
+    font-weight: 700;
+    color: #1a472a;
+}
+
+.metric-card p {
+    margin-top: 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #777;
+}
+
+/* ================= SELECT ================= */
+.select {
+    width: 320px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    border: 1px solid #ddd;
+    background: white;
+    font-size: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+}
+
+/* ================= TABLE ================= */
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 12px;
+}
+
+.data-table thead th {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #666;
+    text-align: left;
+    padding: 10px 18px;
+}
+
+.data-table tbody tr {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.data-table tbody td {
+    padding: 16px 18px;
+    font-size: 15px;
+}
+
+.data-table tbody tr td:first-child {
+    border-top-left-radius: 14px;
+    border-bottom-left-radius: 14px;
+}
+
+.data-table tbody tr td:last-child {
+    border-top-right-radius: 14px;
+    border-bottom-right-radius: 14px;
+}
+
+/* ================= INFO CARDS ================= */
+.info-card {
+    padding: 26px;
+    border-radius: 18px;
+    font-size: 15px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+}
+
+.info-card.green {
+    background: linear-gradient(135deg, #eaf5ef, #ffffff);
+    border-left: 6px solid #1a472a;
+}
+
+.info-card.red {
+    background: linear-gradient(135deg, #fff0f0, #ffffff);
+    border-left: 6px solid #c1272d;
+}
+
+/* ================= FOOTER ================= */
+footer {
+    margin-top: 80px;
+    background: white;
+    border-top: 1px solid #eee;
+    color: #777;
+}
+.leader {
+    background: linear-gradient(135deg, #eaf5ef, #ffffff);
+    border-left: 4px solid #1a472a;
+}
+/*--------------------------------------------------------------------------------------*/
+
+

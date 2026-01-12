@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>CAN 2025 – Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar" id="main-navbar">
+    <div class="logo">CAN 2025</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="classement.html">Classement</a>
+        <a href="chatbot.html" class="active">Chatbot</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+</header>
+
+
+
+<!-- CHATBOT FULL PAGE -->
+<section class="chatbot-full">
+
+    <!-- HEADER -->
+    <div class="chatbot-top">
+        <span class="can-badge">CAN 2025 • MOROCCO</span>
+        <h1>Assistant CAN 2025</h1>
+        <p>Posez vos questions sur les matchs, équipes, groupes et stades.</p>
+    </div>
+
+    <!-- CHAT AREA -->
+    <div class="chat-area" id="chatArea">
+        <div class="bot-msg">
+            👋 Bienvenue !  
+            Je suis l’assistant officiel de la Coupe d’Afrique des Nations 2025 au Maroc.
+        </div>
+    </div>
+
+    <!-- INPUT -->
+    <div class="chat-input-fixed">
+        <input type="text" id="userInput" placeholder="Écrivez votre question ici…">
+        <button onclick="sendMessage()">Envoyer</button>
+    </div>
+
+</section>
+
+<script>
+async function sendMessage() {
+    const input = document.getElementById("userInput");
+    const chat = document.getElementById("chatArea");
+
+    if (input.value.trim() === "") return;
+
+    // Message utilisateur
+    const user = document.createElement("div");
+    user.className = "user-msg";
+    user.textContent = input.value;
+    chat.appendChild(user);
+
+    // Message bot (loading)
+    const bot = document.createElement("div");
+    bot.className = "bot-msg";
+    bot.textContent = "⏳ Analyse en cours...";
+    chat.appendChild(bot);
+
+    chat.scrollTop = chat.scrollHeight;
+
+    const question = input.value;
+    input.value = "";
+
+    try {
+        const res = await fetch("http://127.0.0.1:8000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: question })
+  });
+
+
+        const data = await res.json();
+        bot.textContent = data.response;
+
+    } catch (error) {
+        bot.textContent = "❌ Erreur de connexion au serveur.";
+    }
+
+    chat.scrollTop = chat.scrollHeight;
+}
+</script>
+
+
+</body>
+</html>

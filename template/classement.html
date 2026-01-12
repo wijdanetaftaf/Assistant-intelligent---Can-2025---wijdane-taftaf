@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Classements – CAN 2025</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar" id="main-navbar">
+    <div class="logo">CAN 2025</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html" >About</a>
+        <a href="classement.html" class="active">Classement</a>
+        <a href="chatbot.html" >Chatbot</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+</header>
+<!-- HEADER -->
+<section class="page-header">
+    <h1>📊 Classements des Groupes</h1>
+    <p>Données officielles – Coupe d’Afrique des Nations 2025</p>
+</section>
+
+<!-- SELECT -->
+<section class="section">
+    <label class="label">🎯 Choisir un groupe</label>
+    <select id="groupSelect" class="select"></select>
+</section>
+
+<!-- METRICS -->
+<section class="metrics-row">
+    <div class="metric-card">
+        <span id="m-leader">-</span>
+        <p>Leader</p>
+    </div>
+    <div class="metric-card">
+        <span id="m-points">0</span>
+        <p>Points</p>
+    </div>
+    <div class="metric-card">
+        <span id="m-equipes">0</span>
+        <p>Équipes</p>
+    </div>
+</section>
+
+<!-- TABLE -->
+<section class="section">
+    <h2 class="section-title">🏆 Tableau du classement</h2>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Rang</th>
+                <th>Équipe</th>
+                <th>Pts</th>
+                <th>J</th>
+                <th>G</th>
+                <th>N</th>
+                <th>P</th>
+                <th>BP</th>
+                <th>BC</th>
+                <th>Diff</th>
+            </tr>
+        </thead>
+        <tbody id="classementBody"></tbody>
+    </table>
+</section>
+
+<footer>
+    © 2025 CAN — Africa Cup of Nations • Morocco
+</footer>
+
+<script src="js/data.js"></script>
+<script>
+(async () => {
+    const data = await loadCSV("../data/classement_groupes.csv");
+
+    // Groupes uniques
+    const groupes = [...new Set(data.map(x => x.groupe))].sort();
+    const select = document.getElementById("groupSelect");
+
+    groupes.forEach(g => {
+        select.innerHTML += `<option value="${g}">Groupe ${g}</option>`;
+    });
+
+    function render(groupe) {
+        const rows = data
+            .filter(x => x.groupe === groupe)
+            .sort((a, b) => Number(a.rang) - Number(b.rang));
+
+        // Metrics
+        document.getElementById("m-leader").textContent = rows[0].equipe;
+        document.getElementById("m-points").textContent = rows[0].pts;
+        document.getElementById("m-equipes").textContent = rows.length;
+
+        const tbody = document.getElementById("classementBody");
+        tbody.innerHTML = "";
+
+        rows.forEach(r => {
+            const isLeader = r.rang == 1;
+            tbody.innerHTML += `
+                <tr class="${isLeader ? 'leader' : ''}">
+                    <td>${r.rang}</td>
+                    <td><strong>${r.equipe}</strong></td>
+                    <td>${r.pts}</td>
+                    <td>${r.joues}</td>
+                    <td>${r.gagnes}</td>
+                    <td>${r.nuls}</td>
+                    <td>${r.perdus}</td>
+                    <td>${r.bp}</td>
+                    <td>${r.bc}</td>
+                    <td>${r.diff}</td>
+                </tr>
+            `;
+        });
+    }
+
+    render(groupes[0]);
+    select.addEventListener("change", e => render(e.target.value));
+})();
+</script>
+
+</body>
+</html>

@@ -8,6 +8,8 @@ from data_manager import (
     load_poules, load_finales, load_joueurs,
     load_classement, load_groupes, load_stades, load_equipes
 )
+from llama_router import llama_intent_router
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -161,7 +163,7 @@ def matchs_equipe(team):
     Optimisé : utilise .isin() au lieu de .iterrows()
     """
     if poules.empty and finales.empty:
-        return f"Aucune donnée de match disponible pour **{team}**."
+        return f"Aucune donnée de match disponible pour {team}."
 
     matchs = []
 
@@ -195,12 +197,12 @@ def matchs_equipe(team):
             })
 
     if not matchs:
-        return f"Aucun match trouvé pour **{team}**."
+        return f"Aucun match trouvé pour {team}."
 
     result = f"⚽ Matchs de {team} :\n\n"
     for m in matchs:
         adversaire = m['eq2'] if m['eq1'] == team else m['eq1']
-        result += f"**{team}** vs **{adversaire}**\n"
+        result += f"{team} vs {adversaire}\n"
         if m['score'] != 'À venir':
             result += f"   Score : {m['score']}\n"
         if m['date']:
@@ -211,30 +213,45 @@ def matchs_equipe(team):
 
 
 def score_match(query):
-    """
-    Trouve le score d'un match entre deux équipes
-    Optimisé avec recherche vectorisée
-    """
-    query_norm = normalize_text(query)
+    q = normalize_text(query)
 
-    # Recherche dans les poules
+    team1 = find_team(query)
+    if not team1:
+        return "Je n'ai pas reconnu les équipes du match."
+
+    # Cherche une 2e équipe différente
+    team2 = None
+    for eq in equipes:
+        if eq != team1 and normalize_text(eq) in q:
+            team2 = eq
+            break
+
+    if not team2:
+        return "Je n'ai pas reconnu les deux équipes du match."
+
+    # Recherche dans poules
     if not poules.empty:
-        for idx, match in poules.iterrows():
-            eq1 = normalize_text(match["equipe1"])
-            eq2 = normalize_text(match["equipe2"])
-            if (eq1 in query_norm and eq2 in query_norm):
-                return f"⚽ {match['equipe1']} **{match['score']}** {match['equipe2']}"
+        m = poules[
+            ((poules['equipe1'] == team1) & (poules['equipe2'] == team2)) |
+            ((poules['equipe1'] == team2) & (poules['equipe2'] == team1))
+        ]
+        if not m.empty:
+            r = m.iloc[0]
+            return f"⚽ {r['equipe1']} {r['score']} {r['equipe2']}"
 
-    # Recherche dans les finales
+    # Recherche dans finales
     if not finales.empty:
-        for idx, match in finales.iterrows():
-            eq1 = normalize_text(match["equipe1"])
-            eq2 = normalize_text(match["equipe2"])
-            if (eq1 in query_norm and eq2 in query_norm):
-                score = match.get('score', 'Match à venir')
-                return f"⚽ {match['equipe1']} **{score}** {match['equipe2']}"
+        m = finales[
+            ((finales['equipe1'] == team1) & (finales['equipe2'] == team2)) |
+            ((finales['equipe1'] == team2) & (finales['equipe2'] == team1))
+        ]
+        if not m.empty:
+            r = m.iloc[0]
+            score = r['score'] if r['score'] else "Match à venir"
+            return f"⚽ {r['equipe1']} {score} {r['equipe2']}"
 
-    return "Je n'ai pas trouvé ce match. Vérifie les noms d'équipes ! 😊"
+    return f"Aucun match trouvé entre {team1} et {team2}."
+
 
 
 def equipes_du_groupe(groupe_lettre):
@@ -263,7 +280,7 @@ def classement_complet_groupe(groupe_lettre):
     result = f"🏆 Classement Groupe {groupe_lettre} :\n\n"
     for idx, r in rows.iterrows():
         emoji = ["🥇", "🥈", "🥉", "4️⃣"][min(r['rang']-1, 3)]
-        result += f"{emoji} **{r['equipe']}** — {r['pts']} pts (diff: {r['diff']:+d})\n"
+        result += f"{emoji} {r['equipe']} — {r['pts']} pts (diff: {r['diff']:+d})\n"
 
     return result
 
@@ -284,7 +301,7 @@ def group_of_team(team):
     if team in autres:
         autres.remove(team)
 
-    return f"📋 **{team}** est dans le **Groupe {groupe}**\n👥 Avec : {', '.join(autres)}"
+    return f"📋 {team} est dans le Groupe {groupe}\n👥 Avec : {', '.join(autres)}"
 
 
 def classement_groupe(team):
@@ -301,10 +318,10 @@ def classement_groupe(team):
     emoji = ["🥇", "🥈", "🥉", "4️⃣"][min(r['rang']-1, 3)]
 
     return (
-        f"📊 Classement de **{team}**\n"
-        f"{emoji} Position : **{r['rang']}ème** (Groupe {r['groupe']})\n"
-        f"⭐ Points : **{r['pts']}**\n"
-        f"⚖️ Différence : **{r['diff']:+d}**"
+        f"📊 Classement de {team}\n"
+        f"{emoji} Position : {r['rang']}ème (Groupe {r['groupe']})\n"
+        f"⭐ Points : {r['pts']}\n"
+        f"⚖️ Différence : {r['diff']:+d}"
     )
 
 
@@ -324,7 +341,7 @@ def joueurs_equipe(team):
     total = len(j)
     liste = j["joueur"].tolist()  # TOUS les joueurs maintenant
 
-    result = f"👥 Effectif de **{team}** ({total} joueurs)\n\n"
+    result = f"👥 Effectif de {team} ({total} joueurs)\n\n"
     result += "\n".join([f"   • {joueur}" for joueur in liste])
 
     return result
@@ -342,7 +359,7 @@ def matchs_phase(phase):
 
     result = f"🏆 {phase.title()} :\n\n"
     for idx, m in matchs.iterrows():
-        result += f"   ⚽ **{m['equipe1']}** vs **{m['equipe2']}**\n"
+        result += f"   ⚽ {m['equipe1']} vs {m['equipe2']}\n"
         result += f"   📅 {m['date']} à {m['heure']}\n\n"
 
     return result.strip()
@@ -367,7 +384,7 @@ def liste_stades():
 
     result = "🏟️ Stades de la CAN 2025 :\n\n"
     for ville, liste in stades_ville.items():
-        result += f"📍 **{ville}**\n"
+        result += f"📍 {ville}\n"
         for s in liste:
             result += f"   • {s['nom']} — {s['capacite']:,} places\n".replace(',', ' ')
         result += "\n"
@@ -375,118 +392,103 @@ def liste_stades():
     return result.strip()
 
 
-def smart_intent(query):
-    """
-    Détecte l'intention de l'utilisateur
-    Retourne (action, donnée)
-    """
-    q = normalize_text(query)
+INTENT_HANDLERS = {
+    "matchs_equipe": matchs_equipe,
+    "score": score_match,
+    "joueurs": joueurs_equipe,
+    "classement": classement_groupe,
+    "equipes_groupe": equipes_du_groupe,
+    "groupe": group_of_team,
+    "stades": lambda _: liste_stades(),
+    "phase": matchs_phase
+}
+
+def chatbot(query: str) -> str:
+    if not query.strip():
+        return "💭 Pose-moi une question sur la CAN 2025 !"
+
+    q_norm = normalize_text(query)
+
+    # ======================
+    # 1️⃣ SALUTATIONS
+    # ======================
+    if any(w in q_norm for w in ["bonjour", "salut", "hello", "merci", "aide"]):
+        return talk(query)
+
+    # ======================
+    # 2️⃣ RÈGLES DIRECTES (FIABLES)
+    # ======================
     team = find_team(query)
     groupe = find_groupe(query)
 
-    # Matchs d'une équipe
-    if team and any(w in q for w in [
-        'tous les matchs', 'tous les match',
-        'liste des matchs', 'donne moi les matchs',
-        'matchs du', 'match du'
-    ]):
-        return ('matchs_equipe', team)
+    joueurs_kw = ["joueur", "joueurs", "effectif", "selection", "sélection", "liste"]
+    if team and any(k in q_norm for k in joueurs_kw):
+        return joueurs_equipe(team)
 
-    if team and any(w in q for w in ['premier', 'leader']) and 'groupe' in q:
-        return ('classement', team)
+    if team and any(k in q_norm for k in ["match", "joue", "quand"]):
+        return matchs_equipe(team)
 
-    if any(w in q for w in ['joue quand', 'quand joue', 'prochain match', 'calendrier',
-                            'programme', 'qui affronte', 'contre qui', 'adversaire', 'rencontre']):
-        if team:
-            return ('matchs_equipe', team)
+    if "score" in q_norm or "resultat" in q_norm:
+        return score_match(query)
 
-    # Score
-    if any(w in q for w in ['score', 'resultat', 'vs', 'contre']) and not any(w in q for w in ['quand', 'prochain']):
-        return ('score', None)
+    if "classement" in q_norm and team:
+        return classement_groupe(team)
 
-    # Équipes d'un groupe
-    if groupe and any(w in q for w in ['equipes', 'qui', 'liste', 'quelles', 'composition']):
-        return ('equipes_groupe', groupe)
+    if groupe and "classement" in q_norm:
+        return classement_complet_groupe(groupe)
 
-    # Classement d'un groupe
-    if groupe and any(w in q for w in ['classement', 'premier', 'leader', 'points', 'qui est']):
-        return ('classement_groupe_complet', groupe)
+    if "stade" in q_norm:
+        return liste_stades()
 
-    # Groupe d'une équipe
-    if 'groupe' in q and team and not any(w in q for w in ['classement', 'premier']):
-        return ('groupe', team)
+    if "demi" in q_norm:
+        return matchs_phase("Demi")
+    if "quart" in q_norm:
+        return matchs_phase("Quart")
+    if "finale" in q_norm:
+        return matchs_phase("Finale")
 
-    # Classement d'une équipe
-    if any(w in q for w in ['classement', 'position', 'rang', 'points', 'difference', 'buts']) and team:
-        return ('classement', team)
+    # ======================
+    # 3️⃣ LLaMA (AMBIGU)
+    # ======================
+    parsed = llama_intent_router(query)
 
-    # Joueurs
-    if any(w in q for w in ['joueur', 'effectif', 'composition', 'selection', 'roster', 'equipe']) and team:
-        if 'groupe' not in q:
-            return ('joueurs', team)
+    intent = parsed.get("intent")
+    team_llm = parsed.get("team")
+    groupe_llm = parsed.get("groupe")
+    phase_llm = parsed.get("phase")
 
-    # Phases finales
-    phases = {
-        'quart': 'Quarts',
-        'demi': 'Demi',
-        'finale': 'Finale',
-        'huitieme': 'Huitième',
-        'huit': 'Huitième'
-    }
-    for kw, phase in phases.items():
-        if kw in q:
-            return ('phase', phase)
-
-    # Stades
-    if any(w in q for w in ['stade', 'stades', 'lieu', 'capacite']):
-        return ('stades', None)
-
-    return ('conversation', None)
-
-
-def chatbot(query):
-    """
-    Point d'entrée principal du chatbot
-    Avec gestion d'erreurs améliorée
-    """
-    if not query or not query.strip():
-        return "💭 Pose-moi une question sur la CAN 2025 !"
-
-    query = query.strip()
-    q_norm = normalize_text(query)
-
-    # Conversations générales
-    conv_kw = ['bonjour', 'salut', 'hello', 'merci', 'qui es tu', 'aide', 'ca va', 'cava']
-    if any(kw in q_norm for kw in conv_kw):
+    if intent == "conversation":
         return talk(query)
 
-    try:
-        intent, data = smart_intent(query)
+    if intent == "joueurs" and team_llm:
+        return joueurs_equipe(team_llm)
 
-        if intent == 'matchs_equipe':
-            return matchs_equipe(data)
-        elif intent == 'score':
-            return score_match(query)
-        elif intent == 'equipes_groupe':
-            return equipes_du_groupe(data)
-        elif intent == 'classement_groupe_complet':
-            return classement_complet_groupe(data)
-        elif intent == 'groupe':
-            return group_of_team(data)
-        elif intent == 'classement':
-            return classement_groupe(data)
-        elif intent == 'joueurs':
-            return joueurs_equipe(data)
-        elif intent == 'phase':
-            return matchs_phase(data)
-        elif intent == 'stades':
-            return liste_stades()
-        else:
-            return talk(query)
+    if intent == "matchs_equipe" and team_llm:
+        return matchs_equipe(team_llm)
 
-    except Exception as e:
-        logger.error(f"Erreur chatbot: {e}")
-        return "Désolé, une erreur s'est produite. Peux-tu reformuler ta question ? 😊"
+    if intent == "score":
+        return score_match(query)
+
+    if intent == "classement" and team_llm:
+        return classement_groupe(team_llm)
+
+    if intent == "equipes_groupe" and groupe_llm:
+        return equipes_du_groupe(groupe_llm)
+
+    if intent == "phase" and phase_llm:
+        return matchs_phase(phase_llm)
+
+    if intent == "stades":
+        return liste_stades()
+
+    # ======================
+    # 4️⃣ FALLBACK FINAL
+    # ======================
+    if team:
+        return f"🤔 Que veux-tu savoir exactement sur {team} ?"
+
+    return "🤔 Je n’ai pas compris. Peux-tu reformuler ?"
+
 
 
 def ask_bot(question):
